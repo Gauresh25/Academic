@@ -1,0 +1,15 @@
+PROG1 START 0
+      LDA   ALPHA
+      STA   BETA
+ADD   MACRO &X,&Y,&Z
+      LDA   &X
+      ADD   &Y
+      STA   &Z
+ENDM
+      ADD   GAMMA,DELTA,EPSILON
+MULT  MACRO &P,&Q
+      LDA   &P
+      MUL   &Q
+ENDM
+      MULT  ALPHA,BETA
+      END
