@@ -13,20 +13,36 @@ def macro_processor_pass1(input_file):
 
     output_lines = []  # For source code after macro removal
     i = 0
+    in_macro = False
 
     while i < len(lines):
         line = lines[i].strip()
         tokens = line.split()
 
-        # Check for MACRO directive
-        if len(tokens) > 1 and tokens[1] == 'MACRO':
+        if not tokens:  # Skip empty lines
+            output_lines.append(line)
+            i += 1
+            continue
+
+        # Check for MACRO directive (now expecting MACRO as first token)
+        if tokens[0] == 'MACRO':
+            in_macro = True
+
+            # Next line should contain the macro name and parameters
+            i += 1
+            if i >= len(lines):
+                break
+
+            macro_line = lines[i].strip()
+            macro_tokens = macro_line.split()
+
             # Extract macro name and parameters
-            macro_name = tokens[0]
+            macro_name = macro_tokens[0]
             params = []
 
-            # If there are parameters after MACRO
-            if len(tokens) > 2:
-                params = tokens[2].split(',')
+            # If there are parameters after macro name
+            if len(macro_tokens) > 1:
+                params = macro_tokens[1].split(',')
 
             # Store in macro name table with index into definition table
             macro_name_table[macro_name] = len(macro_definition_table)
@@ -34,7 +50,7 @@ def macro_processor_pass1(input_file):
 
             # Store the macro definition
             macro_body = []
-            i += 1  # Move past the MACRO line
+            i += 1  # Move past the macro name line
 
             while i < len(lines) and 'ENDM' not in lines[i].strip().split():
                 macro_body.append(lines[i].strip())
@@ -45,10 +61,12 @@ def macro_processor_pass1(input_file):
 
             # Skip the ENDM line
             i += 1
+            in_macro = False
             continue
 
         # If not inside a macro definition, add to output
-        output_lines.append(line)
+        if not in_macro:
+            output_lines.append(line)
         i += 1
 
     # Return the tables and processed source code
@@ -66,7 +84,7 @@ def display_tables(tables):
     for name, index in tables['macro_name_table'].items():
         print(f"{name}\t\t{index}")
 
-    print("\n--- PARAMETER TABLE ---")
+    print("\n--- PARAMETER TABLE [argument list array]---")
     print("Macro Name\tParameters")
     for name, params in tables['parameter_table'].items():
         print(f"{name}\t\t{', '.join(params)}")
@@ -98,13 +116,15 @@ if __name__ == "__main__":
 PROG1 START 0
       LDA   ALPHA
       STA   BETA
-ADD   MACRO &X,&Y,&Z
+MACRO
+    ADD    &X,&Y,&Z
       LDA   &X
       ADD   &Y
       STA   &Z
 ENDM
       ADD   GAMMA,DELTA,EPSILON
-MULT  MACRO &P,&Q
+MACRO
+      MULT  &P,&Q
       LDA   &P
       MUL   &Q
 ENDM
