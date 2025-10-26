@@ -24,13 +24,10 @@ def findFirst(symbol):
                     firstset.append(rule[0])
                 if rule[0] in non_terminals:
                     firstset.extend(findFirst(rule[0]))
-
-
                 break
     else:
         print("Symbol is a terminal")
         return
-
     return list(set(firstset))
 
 
