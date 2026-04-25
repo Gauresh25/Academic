@@ -1,8 +1,5 @@
 *.xml
 Machine learning/.idea/Machine learning.iml
 Machine learning/used_cars_dataset_v2.csv
-/SMA_10
-/SMA_5
-/SMA_9
-/SMA_practical exams
-SMA_practical exams/dummy.py
+.csv
+*.csv
